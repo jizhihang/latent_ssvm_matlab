@@ -56,7 +56,6 @@ SAMPLE read_struct_examples(mxArray const * sparm_array, STRUCT_LEARN_PARM *spar
   {
     sample.examples[ei].x.mex = mxGetCell(patterns_array, ei);
     sample.examples[ei].y.mex = mxGetCell(labels_array,   ei);
-    sample.examples[ei].y.isOwner = 0 ;
     sample.examples[ei].h.mex = mxGetCell(latent_array,  ei);
   }
 
@@ -152,31 +151,6 @@ SVECTOR *psi(PATTERN x, LABEL y, LATENT_VAR h, STRUCTMODEL *sm, STRUCT_LEARN_PAR
 //  printf("end psi()\n");
 
   return sv;
-
-//  WORD *words;
-//  int l = 0;
-//  int i;
-//  for(i=0;i<x.dim_feature;i++)
-//      if (x.coords[i] > 0)
-//          l++;
-
-//  words = (WORD*)my_malloc(sizeof(WORD)*(l+1));
-//  int k = 0;
-//  for (i = 0; i < sm->sizePsi; i++)
-//  {
-//      if (x.coords[i] != 0)
-//      {
-//          words[k].wnum = i + 1;
-//          words[k].weight = (double) 1.0 * y.label * x.coords[i]/2;
-//          k++;
-//      }
-//  }
-//  words[k].wnum = 0;
-//  words[k].weight = 0.0;
-//  fvec = create_svector(words, "", 1);
-
-//  free(words);
-//  return(fvec);
 }
 
 
@@ -188,52 +162,6 @@ void classify_struct_example(PATTERN x, LABEL *y, LATENT_VAR *h, STRUCTMODEL *sm
   Output pair (y,h) are stored at location pointed to by 
   pointers *y and *h. 
 */
-//printf("begin classify_struct_example()\n");
-  mxArray* fn_array ;
-  mxArray* w_array ;
-  mxArray* args[4];
-  mxArray* out[2];
-  int status;
-  fn_array= mxGetField(sparm->mex, 0, "classifyFn") ;
-  if (!fn_array) {
-      mexErrMsgTxt("Field PARM.CLASSIFYFN not found") ;
-  }
-  if (!mxGetClassID(fn_array) == mxFUNCTION_CLASS) {
-    mexErrMsgTxt("PARM.CLASSIFYFN must be a valid function handle") ;
-  }
-
-  w_array = mxCreateDoubleMatrix(sm->sizePsi, 1, mxREAL) ;
-  memcpy(mxGetPr(w_array),
-         sm->w + 1,
-         sm->sizePsi * sizeof(double));
-  args[0] = fn_array ;
-  args[1] = (mxArray*) sparm->mex ; /* model (discard conts) */
-  args[2] = w_array;
-  args[3] = x.mex;
-  status = mexCallMATLAB(2, out, 4, args, "feval");
-
-  mxDestroyArray(w_array);
-  if (status) {
-    mexErrMsgTxt("Error while executing PARM.CLASSIFYFN") ;
-  }
-//  if (mxGetClassID(y.mex) == mxUNKNOWN_CLASS) {
-//    mexErrMsgTxt("PARM.CLASSIFYFN did not reutrn a result") ;
-//  }
-
-  y->mex = out[0];
-  h->mex = out[1];
-  y->isOwner = 1;
-
-//printf("end classify_struct_example\n");
-//  int i;
-//  float s = 0;
-//  for (i = 0; i < sm->sizePsi; i++)
-//      s += 1.0 * x.coords[i] * sm->w[i+1];
-//  if (s > 0)
-//      y->label = 1;
-//  else
-//      y->label = -1;
-//  h->latent_label = 0;
 }
 
 
@@ -258,14 +186,11 @@ void find_most_violated_constraint_marginrescaling(PATTERN x, LABEL y, LABEL *yb
   if (! mxGetClassID(fn_array) == mxFUNCTION_CLASS)
    mexErrMsgTxt("PARM.CONSTRAINTFN is not a valid function handle") ;
 
-
-
   /* encapsulate sm->w into a Matlab array */
-//  printf("%.8f, %.8f\n", sm->w[1], sm->w[2]);
   model_array = newMxArrayEncapsulatingSmodel (sm) ;
 
   args[0] = fn_array ;
-  args[1] = (mxArray*) sparm->mex ; /* model (discard conts) */
+  args[1] = (mxArray*) sparm->mex ;
   args[2] = model_array;
   args[3] = x.mex;
   args[4] = y.mex;
@@ -280,25 +205,15 @@ void find_most_violated_constraint_marginrescaling(PATTERN x, LABEL y, LABEL *yb
     mexCallMATLAB(0, NULL, 1, &error_array, "error") ;
   }
 
-//  if (mxGetClassID(ybar.mex) == mxUNKNOWN_CLASS)
-//      mexErrMsgTxt("PARM.CONSTRAINTFN did not reutrn a result") ;
+  if (mxGetClassID(*out) == mxUNKNOWN_CLASS)
+      mexErrMsgTxt("PARM.CONSTRAINTFN did not return a result") ;
 
 
   ybar->mex = out[0];
   hbar->mex = out[1];
-  ybar->isOwner = 1;
 //printf("end find_most_violated_constraint_marginrescaling()\n");
 
-//    float s = 0;
-//    int i;
-//    for (i = 0; i < sm->sizePsi; i++)
-//        s += 1.0 * y.label * x.coords[i] * sm->w[i+1];
 
-//    if (s > 1)
-//        ybar->label = y.label;
-//    else
-//        ybar->label = - y.label;
-//    hbar->latent_label = 0;
 }
 
 LATENT_VAR infer_latent_variables(PATTERN x, LABEL y, STRUCTMODEL *sm, STRUCT_LEARN_PARM *sparm) {
@@ -341,8 +256,8 @@ LATENT_VAR infer_latent_variables(PATTERN x, LABEL y, STRUCTMODEL *sm, STRUCT_LE
     mexCallMATLAB(0, NULL, 1, &error_array, "error") ;
   }
 
-//  if (mxGetClassID(ybar.mex) == mxUNKNOWN_CLASS)
-//     mexErrMsgTxt("PARM.CONSTRAINTFN did not reutrn a result") ;
+  if (mxGetClassID(out) == mxUNKNOWN_CLASS)
+     mexErrMsgTxt("PARM.CONSTRAINTFN did not reutrn a result") ;
 //    printf("end infer_latent_variables()\n");
   h.mex = out;
   return h;
@@ -380,9 +295,8 @@ double loss(LABEL y, LABEL ybar, LATENT_VAR hbar, STRUCT_LEARN_PARM *sparm) {
     if (status)
       mexErrMsgTxt("Error while executing PARM.LOSSFN") ;
 
-    if (! uIsRealScalar(out))
+    if (!uIsRealScalar(out))
       mexErrMsgTxt("PARM.LOSSFN must reutrn a scalar") ;
-
 
     loss_value = *mxGetPr(out);
     mxDestroyArray(out) ;

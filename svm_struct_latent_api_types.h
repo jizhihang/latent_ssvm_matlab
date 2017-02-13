@@ -170,7 +170,6 @@ typedef struct label {
     Type definition for output label y
   */
   mxArray * mex;
-  int isOwner;
 } LABEL;
 
 typedef struct latent_var {

@@ -35,7 +35,6 @@ function script_test
   parm.lossFn = @lossCB ;
   parm.constraintFn  = @constraintCB ;
   parm.featureFn = @featureCB ;
-  parm.classifyFn = @classifyCB;
   parm.inferLatentFn = @inferLatentCB;
   parm.dimension = 2 ;
   parm.verbose = 1 ;
@@ -65,17 +64,6 @@ end
 %                                               SVM struct callbacks
 % ------------------------------------------------------------------
 
-
-function [y, h] = classifyCB(param, w, x)
-% Computing argmax_{(y,h)} <w,psi(x,y,h)>. 
-    if dot(w, x) > 0
-        y = 1;
-    else
-        y = -1;
-    end
-    h = 1;
-end
-    
 
 function delta = lossCB(param, y, ybar, hbar)
 % compute the loss prediction (ybar, hbar) against correct y.
