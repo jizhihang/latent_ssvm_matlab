@@ -39,7 +39,7 @@ function script_test
   parm.inferLatentFn = @inferLatentCB;
   parm.dimension = 2 ;
   parm.verbose = 1 ;
-  model = svm_latent_struct_learn_mex(' -c 0.05', parm) ;
+  model = svm_latent_struct_learn_mex(' -c 1.0', parm) ;
   w = model.w ;
 
   % ------------------------------------------------------------------
@@ -67,6 +67,7 @@ end
 
 
 function [y, h] = classifyCB(param, w, x)
+% Computing argmax_{(y,h)} <w,psi(x,y,h)>. 
     if dot(w, x) > 0
         y = 1;
     else
@@ -77,32 +78,23 @@ end
     
 
 function delta = lossCB(param, y, ybar, hbar)
+% compute the loss prediction (ybar, hbar) against correct y.
   delta = double(y ~= ybar) ;
-%   if param.verbose
-%     fprintf('delta = loss(%3d, %3d) = %f\n', y, ybar, delta) ;
-%   end
 end
 
 function psi = featureCB(param, x, y, h)
+% psi(x, y, h), the returned value has to be a sparse vector.
   psi = sparse(y*x/2) ;
-%   if param.verbose
-%     fprintf('w = psi([%8.3f,%8.3f], %3d) = [%8.3f, %8.3f]\n', ...
-%             x, y, full(psi(1)), full(psi(2))) ;
-%   end
 end
 
 function [yhat, h] = constraintCB(param, model, x, y)
-% slack resaling: argmax_y delta(yi, y) (1 + <psi(x,y), w> - <psi(x,yi), w>)
-% margin rescaling: argmax_y delta(yi, y) + <psi(x,y), w>
-% disp(model.w);
+% Loss augmented inference:
+% argmax_{(ybar,hbar)} [<w,psi(x,ybar,hbar)> + loss(y,ybar,hbar)].
   if dot(y*x, model.w) > 1, yhat = y ; else yhat = - y ; end
-%   if param.verbose
-%     fprintf('yhat = violslack([%8.3f,%8.3f], [%8.3f,%8.3f], %3d) = %3d\n', ...
-%             model.w, x, y, yhat) ;
-%   end
-
+  h = 1;
 end
 
 function h = inferLatentCB(param, model, x, y)
+% computing argmax_{h} <w,psi(x,y,h)>. 
   h = 1;
 end
