@@ -38,7 +38,8 @@ function script_test
   parm.inferLatentFn = @inferLatentCB;
   parm.dimension = 2 ;
   parm.verbose = 1 ;
-  model = svm_latent_struct_learn_mex(' -c 1.0', parm) ;
+  w_init = rand(2, 1)*1000;
+  model = svm_latent_struct_learn_mex(' -c 1.0', parm, w_init);
   w = model.w ;
 
   % ------------------------------------------------------------------

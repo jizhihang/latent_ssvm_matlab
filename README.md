@@ -1,6 +1,3 @@
-# latent_ssvm_matlab
-
-
 Matlab mex wrapper for Latent Structural SVM (Jan 2017)
 --------------------------------------------
 Implemented by Zhile Ren based on

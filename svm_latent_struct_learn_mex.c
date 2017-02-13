@@ -263,7 +263,7 @@ double cutting_plane_algorithm(double *w, long m, int MAX_ITER, double C, double
 
   max_rho = C;
 
-  printf("Running CCCP inner loop solver: "); fflush(stdout);
+  mexPrintf("Running CCCP inner loop solver: "); fflush(stdout);
 
   while ((!suff_decrease_cond)&&(expected_descent<-epsilon)&&(iter<MAX_ITER)) {
     iter+=1;
@@ -490,7 +490,7 @@ double cutting_plane_algorithm(double *w, long m, int MAX_ITER, double C, double
 
   } // end cutting plane while loop
 
-  printf(" Inner loop optimization finished.\n"); fflush(stdout);
+  mexPrintf(" Inner loop optimization finished.\n"); fflush(stdout);
 
   /* free memory */
   for (j=0;j<size_active;j++) {
@@ -558,6 +558,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
   double *w; /* weight vector */
   int outer_iter;
   long m, i;
+  int j;
   double C, epsilon;
   LEARN_PARM learn_parm;
   KERNEL_PARM kernel_parm;
@@ -576,6 +577,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 
   #define INPUT_STRING prhs[0]
   #define INPUT_SPARM prhs[1]
+  #define INPUT_WINIT prhs[2]
 //  #define OUTPUT_RESULT plhs[0]
   int argc ;
   char ** argv ;
@@ -610,6 +612,12 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 
   w = create_nvector(sm.sizePsi);
   clear_nvector(w, sm.sizePsi);
+
+  double * w_tmp;
+  w_tmp  = mxGetPr(INPUT_WINIT);
+  for (j = 0; j < sm.sizePsi; j++)
+      w[j+1] = w_tmp[j];
+
   sm.w = w; /* establish link to w, as long as w does not change pointer */
 
   /* some training information */
@@ -647,14 +655,14 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     /* compute decrement in objective in this outer iteration */
     decrement = last_primal_obj - primal_obj;
     last_primal_obj = primal_obj;
-    printf("primal objective: %.4f\n", primal_obj);
-    printf("decrement: %.4f\n", decrement); fflush(stdout);
+    mexPrintf("primal objective: %.4f\n", primal_obj);
+    mexPrintf("decrement: %.4f\n", decrement); fflush(stdout);
 
     stop_crit = (decrement<C*epsilon)&&(cooling_eps<0.5*C*epsilon+1E-8);
 
     cooling_eps = -decrement*0.01;
     cooling_eps = MAX(cooling_eps, 0.5*C*epsilon);
-    printf("cooling_eps: %.8g\n", cooling_eps);
+    mexPrintf("cooling_eps: %.8g\n", cooling_eps);
 
 
     /* impute latent variable using updated weight vector */
@@ -738,22 +746,7 @@ void my_read_input_parameters(int argc, char *argv[],
 
   }
 
-//  if(i>=argc) {
-//    printf("\nNot enough input parameters!\n\n");
-//    my_wait_any_key();
-//    exit(0);
-//  }
-
   parse_struct_parameters(struct_parm);
-
-}
-
-
-
-void my_wait_any_key()
-{
-  printf("\n(more)\n");
-  (void)getc(stdin);
 }
 
 
