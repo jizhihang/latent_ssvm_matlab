@@ -4,6 +4,7 @@
 Matlab mex wrapper for Latent Structural SVM (Jan 2017)
 --------------------------------------------
 Implemented by Zhile Ren based on
+
 1) the SVM-light code by Thorsten Joachims,
 
 2) latent S-SVM code by Chun-Nam Yu and
@@ -20,7 +21,7 @@ INSTALLATION
 
 EXAMPLE
 ------------
-script_test.m contain a simple SVM example to get you started. The example is adapted from svm-struct-matlab: http://www.robots.ox.ac.uk/~vedaldi//svmstruct.html.
+script_test.m contain a simple SVM example to get you started. The example is adapted from svm-struct-matlab: http://www.robots.ox.ac.uk/~vedaldi//svmstruct.html. 
 
 REFERENCES
 ----------
