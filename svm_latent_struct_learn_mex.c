@@ -263,7 +263,7 @@ double cutting_plane_algorithm(double *w, long m, int MAX_ITER, double C, double
 
   max_rho = C;
 
-  printf("Running CCCP inner loop solver: "); fflush(stdout);
+  printf("Running CCCP inner loop solver: ");
 
   while ((!suff_decrease_cond)&&(expected_descent<-epsilon)&&(iter<MAX_ITER)) {
     iter+=1;
@@ -272,7 +272,7 @@ double cutting_plane_algorithm(double *w, long m, int MAX_ITER, double C, double
 #if (DEBUG_LEVEL>0)
     printf("ITER %d\n", iter);
 #endif
-    printf("."); fflush(stdout);
+    printf(".");
 
     /* add  constraint */
     dXc = (DOC**)realloc(dXc, sizeof(DOC*)*size_active);
@@ -384,7 +384,6 @@ double cutting_plane_algorithm(double *w, long m, int MAX_ITER, double C, double
     printf("sigma_k: %.8g\n", sigma_k);
     printf("alphasum: %.8g\n", alphasum);
     printf("g^T d: %.8g\n", gTd);
-    fflush(stdout);
 #endif
 
 
@@ -404,7 +403,7 @@ double cutting_plane_algorithm(double *w, long m, int MAX_ITER, double C, double
     primal_obj = 0.5*sprod_nn(w,w,sm->sizePsi)+C*value;
 
 #if (DEBUG_LEVEL>0)
-    printf("ITER PRIMAL_OBJ %.4f\n", primal_obj); fflush(stdout);
+    printf("ITER PRIMAL_OBJ %.4f\n", primal_obj); //fflush(stdout);
 #endif
 
 
@@ -490,7 +489,7 @@ double cutting_plane_algorithm(double *w, long m, int MAX_ITER, double C, double
 
   } // end cutting plane while loop
 
-  printf(" Inner loop optimization finished.\n"); fflush(stdout);
+  printf(" Inner loop optimization finished.\n"); //fflush(stdout);
 
   /* free memory */
   for (j=0;j<size_active;j++) {
@@ -624,7 +623,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
   printf("C: %.8g\n", C);
   printf("epsilon: %.8g\n", epsilon);
   printf("sample.n: %ld\n", sample.n);
-  printf("sm.sizePsi: %ld\n", sm.sizePsi); fflush(stdout);
+  printf("sm.sizePsi: %ld\n", sm.sizePsi); //fflush(stdout);
 
   /* impute latent variable for first iteration */
   init_latent_variables(&sample,&learn_parm,&sm,&sparm);
@@ -656,7 +655,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     decrement = last_primal_obj - primal_obj;
     last_primal_obj = primal_obj;
     printf("primal objective: %.4f\n", primal_obj);
-    printf("decrement: %.4f\n", decrement); fflush(stdout);
+    printf("decrement: %.4f\n", decrement); //fflush(stdout);
 
     stop_crit = (decrement<C*epsilon)&&(cooling_eps<0.5*C*epsilon+1E-8);
 
