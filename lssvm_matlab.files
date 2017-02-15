@@ -9,8 +9,6 @@ svm_light/svm_learn.h
 svm_light/svm_learn_main.c
 README.TXT
 res.model
-svm_latent_classify
-svm_latent_learn
 svm_struct_latent_api.c
 svm_struct_latent_api.h
 svm_struct_latent_api_types.h

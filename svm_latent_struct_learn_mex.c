@@ -263,7 +263,7 @@ double cutting_plane_algorithm(double *w, long m, int MAX_ITER, double C, double
 
   max_rho = C;
 
-  mexPrintf("Running CCCP inner loop solver: "); fflush(stdout);
+  printf("Running CCCP inner loop solver: "); fflush(stdout);
 
   while ((!suff_decrease_cond)&&(expected_descent<-epsilon)&&(iter<MAX_ITER)) {
     iter+=1;
@@ -490,7 +490,7 @@ double cutting_plane_algorithm(double *w, long m, int MAX_ITER, double C, double
 
   } // end cutting plane while loop
 
-  mexPrintf(" Inner loop optimization finished.\n"); fflush(stdout);
+  printf(" Inner loop optimization finished.\n"); fflush(stdout);
 
   /* free memory */
   for (j=0;j<size_active;j++) {
@@ -655,14 +655,14 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     /* compute decrement in objective in this outer iteration */
     decrement = last_primal_obj - primal_obj;
     last_primal_obj = primal_obj;
-    mexPrintf("primal objective: %.4f\n", primal_obj);
-    mexPrintf("decrement: %.4f\n", decrement); fflush(stdout);
+    printf("primal objective: %.4f\n", primal_obj);
+    printf("decrement: %.4f\n", decrement); fflush(stdout);
 
     stop_crit = (decrement<C*epsilon)&&(cooling_eps<0.5*C*epsilon+1E-8);
 
     cooling_eps = -decrement*0.01;
     cooling_eps = MAX(cooling_eps, 0.5*C*epsilon);
-    mexPrintf("cooling_eps: %.8g\n", cooling_eps);
+    printf("cooling_eps: %.8g\n", cooling_eps);
 
 
     /* impute latent variable using updated weight vector */

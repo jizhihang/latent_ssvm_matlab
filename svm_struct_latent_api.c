@@ -59,7 +59,7 @@ SAMPLE read_struct_examples(mxArray const * sparm_array, STRUCT_LEARN_PARM *spar
     sample.examples[ei].h.mex = mxGetCell(latent_array,  ei);
   }
 
-  mexPrintf("There are %d training examples\n", numExamples) ;
+  printf("There are %d training examples\n", numExamples) ;
   return sample;
 }
 
@@ -85,7 +85,8 @@ void init_struct_model(SAMPLE sample, STRUCTMODEL *sm, STRUCT_LEARN_PARM *sparm,
   }
 }
 
-void init_latent_variables(SAMPLE *sample, LEARN_PARM *lparm, STRUCTMODEL *sm, STRUCT_LEARN_PARM *sparm) {
+void init_latent_variables(SAMPLE *sample, LEARN_PARM *lparm,
+                           STRUCTMODEL *sm, STRUCT_LEARN_PARM *sparm) {
 /*
   Initialize latent variables in the first iteration of training.
   Latent variables are stored at sample.examples[i].h, for 1<=i<=sample.n.
