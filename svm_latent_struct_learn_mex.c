@@ -34,6 +34,8 @@
 #define MIN(x,y) ((x) > (y) ? (y) : (x))
 
 #define DEBUG_LEVEL 0
+#define printfFnc(...) { mexPrintf(__VA_ARGS__); mexEvalString("drawnow;");}
+
 
 void my_read_input_parameters(int argc, char* argv[],
                   LEARN_PARM *learn_parm, KERNEL_PARM *kernel_parm,
@@ -263,16 +265,13 @@ double cutting_plane_algorithm(double *w, long m, int MAX_ITER, double C, double
 
   max_rho = C;
 
-  printf("Running CCCP inner loop solver: ");
+  printfFnc("Running CCCP inner loop solver: ");
 
   while ((!suff_decrease_cond)&&(expected_descent<-epsilon)&&(iter<MAX_ITER)) {
     iter+=1;
     size_active+=1;
 
-#if (DEBUG_LEVEL>0)
-    printf("ITER %d\n", iter);
-#endif
-    printf(".");
+    printfFnc(".");
 
     /* add  constraint */
     dXc = (DOC**)realloc(dXc, sizeof(DOC*)*size_active);
@@ -377,14 +376,14 @@ double cutting_plane_algorithm(double *w, long m, int MAX_ITER, double C, double
     sigma_k/=C;
     gTd = -C*(sprod_ns(w,new_constraint) - sprod_ns(w_b,new_constraint));
 
-#if (DEBUG_LEVEL>0)
-    for (j=0;j<size_active;j++) {
-      printf("alpha[%d]: %.8g, cut_error[%d]: %.8g\n", j, alpha[j], j, cut_error[j]);
-    }
-    printf("sigma_k: %.8g\n", sigma_k);
-    printf("alphasum: %.8g\n", alphasum);
-    printf("g^T d: %.8g\n", gTd);
-#endif
+//#if (DEBUG_LEVEL>0)
+//    for (j=0;j<size_active;j++) {
+//      printf("alpha[%d]: %.8g, cut_error[%d]: %.8g\n", j, alpha[j], j, cut_error[j]);
+//    }
+//    printf("sigma_k: %.8g\n", sigma_k);
+//    printf("alphasum: %.8g\n", alphasum);
+//    printf("g^T d: %.8g\n", gTd);
+//#endif
 
 
     /* update cleanup information */
@@ -402,9 +401,9 @@ double cutting_plane_algorithm(double *w, long m, int MAX_ITER, double C, double
     /* print primal objective */
     primal_obj = 0.5*sprod_nn(w,w,sm->sizePsi)+C*value;
 
-#if (DEBUG_LEVEL>0)
-    printf("ITER PRIMAL_OBJ %.4f\n", primal_obj); //fflush(stdout);
-#endif
+//#if (DEBUG_LEVEL>0)
+//    printf("ITER PRIMAL_OBJ %.4f\n", primal_obj); //fflush(stdout);
+//#endif
 
 
     temp_var = sprod_nn(w_b,w_b,sm->sizePsi);
@@ -420,24 +419,24 @@ double cutting_plane_algorithm(double *w, long m, int MAX_ITER, double C, double
 
     primal_lower_bound = MAX(primal_lower_bound, reg_master_obj - 0.5*rho*(1+rho)*proximal_term);
 
-#if (DEBUG_LEVEL>0)
-    printf("ITER REG_MASTER_OBJ: %.4f\n", reg_master_obj);
-    printf("ITER EXPECTED_DESCENT: %.4f\n", expected_descent);
-    printf("ITER PRIMLA_OBJ_B: %.4f\n", primal_obj_b);
-    printf("ITER RHO: %.4f\n", rho);
-    printf("ITER ||w-w_b||^2: %.4f\n", proximal_term);
-    printf("ITER PRIMAL_LOWER_BOUND: %.4f\n", primal_lower_bound);
-    printf("ITER V_K: %.4f\n", v_k);
-#endif
+//#if (DEBUG_LEVEL>0)
+//    printf("ITER REG_MASTER_OBJ: %.4f\n", reg_master_obj);
+//    printf("ITER EXPECTED_DESCENT: %.4f\n", expected_descent);
+//    printf("ITER PRIMLA_OBJ_B: %.4f\n", primal_obj_b);
+//    printf("ITER RHO: %.4f\n", rho);
+//    printf("ITER ||w-w_b||^2: %.4f\n", proximal_term);
+//    printf("ITER PRIMAL_LOWER_BOUND: %.4f\n", primal_lower_bound);
+//    printf("ITER V_K: %.4f\n", v_k);
+//#endif
     obj_difference = primal_obj - primal_obj_b;
 
 
     if (primal_obj<primal_obj_b+kappa*expected_descent) {
       /* extra condition to be met */
       if ((gTd>m2*v_k)||(rho<min_rho+1E-8)) {
-#if (DEBUG_LEVEL>0)
-    printf("SERIOUS STEP\n");
-#endif
+//#if (DEBUG_LEVEL>0)
+//    printf("SERIOUS STEP\n");
+//#endif
     /* update cut_error */
     for (i=0;i<size_active;i++) {
       cut_error[i] -= (primal_obj_b - 0.5*sprod_nn(w_b,w_b,sm->sizePsi));
@@ -453,23 +452,23 @@ double cutting_plane_algorithm(double *w, long m, int MAX_ITER, double C, double
     serious_counter++;
       } else {
     /* increase step size */
-#if (DEBUG_LEVEL>0)
-    printf("NULL STEP: SS(ii) FAILS.\n");
-#endif
+//#if (DEBUG_LEVEL>0)
+//    printf("NULL STEP: SS(ii) FAILS.\n");
+//#endif
     serious_counter--;
     rho = MAX(rho/10,min_rho);
       }
     } else { /* no sufficient decrease */
       serious_counter--;
       if ((cut_error[size_active-1]>m3*last_sigma_k)&&(fabs(obj_difference)>last_z_k_norm+last_sigma_k)) {
-#if (DEBUG_LEVEL>0)
-    printf("NULL STEP: NS(ii) FAILS.\n");
-#endif
+//#if (DEBUG_LEVEL>0)
+//    printf("NULL STEP: NS(ii) FAILS.\n");
+//#endif
     rho = MIN(10*rho,max_rho);
       }
-#if (DEBUG_LEVEL>0)
-      else printf("NULL STEP\n");
-#endif
+//#if (DEBUG_LEVEL>0)
+//      else printf("NULL STEP\n");
+//#endif
     }
     /* update last_sigma_k */
     last_sigma_k = sigma_k;
@@ -489,7 +488,7 @@ double cutting_plane_algorithm(double *w, long m, int MAX_ITER, double C, double
 
   } // end cutting plane while loop
 
-  printf(" Inner loop optimization finished.\n"); //fflush(stdout);
+  printfFnc(" Inner loop optimization finished.\n"); //fflush(stdout);
 
   /* free memory */
   for (j=0;j<size_active;j++) {
@@ -620,10 +619,11 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
   sm.w = w; /* establish link to w, as long as w does not change pointer */
 
   /* some training information */
-  printf("C: %.8g\n", C);
-  printf("epsilon: %.8g\n", epsilon);
-  printf("sample.n: %ld\n", sample.n);
-  printf("sm.sizePsi: %ld\n", sm.sizePsi); //fflush(stdout);
+  printfFnc("C: %.8g\n", C);
+  printfFnc("epsilon: %.8g\n", epsilon);
+  printfFnc("sample.n: %ld\n", sample.n);
+  printfFnc("sm.sizePsi: %ld\n", sm.sizePsi); //fflush(stdout);
+//  mexEvalString("drawnow;");
 
   /* impute latent variable for first iteration */
   init_latent_variables(&sample,&learn_parm,&sm,&sparm);
@@ -647,21 +647,21 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 
 
   while ((outer_iter<2)||((!stop_crit)&&(outer_iter<MAX_OUTER_ITER))) {
-    printf("OUTER ITER %d\n", outer_iter);
+    printfFnc("OUTER ITER %d\n", outer_iter);
     /* cutting plane algorithm */
     primal_obj = cutting_plane_algorithm(w, m, MAX_ITER, C, cooling_eps, fycache, ex, &sm, &sparm);
 
     /* compute decrement in objective in this outer iteration */
     decrement = last_primal_obj - primal_obj;
     last_primal_obj = primal_obj;
-    printf("primal objective: %.4f\n", primal_obj);
-    printf("decrement: %.4f\n", decrement); //fflush(stdout);
+    printfFnc("primal objective: %.4f\n", primal_obj);
+    printfFnc("decrement: %.4f\n", decrement); //fflush(stdout);
 
     stop_crit = (decrement<C*epsilon)&&(cooling_eps<0.5*C*epsilon+1E-8);
 
     cooling_eps = -decrement*0.01;
     cooling_eps = MAX(cooling_eps, 0.5*C*epsilon);
-    printf("cooling_eps: %.8g\n", cooling_eps);
+    printfFnc("cooling_eps: %.8g\n", cooling_eps);
 
 
     /* impute latent variable using updated weight vector */
@@ -739,7 +739,7 @@ void my_read_input_parameters(int argc, char *argv[],
     case 'n': i++; learn_parm->maxiter=atol(argv[i]); break;
     case 'p': i++; learn_parm->remove_inconsistent=atol(argv[i]); break;
     case '-': strcpy(struct_parm->custom_argv[struct_parm->custom_argc++],argv[i]);i++; strcpy(struct_parm->custom_argv[struct_parm->custom_argc++],argv[i]);break;
-    default: printf("\nUnrecognized option %s!\n\n",argv[i]);
+    default: printfFnc("\nUnrecognized option %s!\n\n",argv[i]);
       exit(0);
     }
 
